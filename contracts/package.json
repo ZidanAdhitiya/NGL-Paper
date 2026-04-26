@@ -1,0 +1,20 @@
+{
+  "name": "ngl-paper-contracts",
+  "version": "1.0.0",
+  "description": "NGLPaper smart contracts for Celo MiniPay",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy:alfajores": "npx hardhat run scripts/deploy.js --network alfajores",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.js --network celo",
+    "verify:alfajores": "npx hardhat verify --network alfajores",
+    "verify:mainnet": "npx hardhat verify --network celo",
+    "test": "npx hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0"
+  }
+}

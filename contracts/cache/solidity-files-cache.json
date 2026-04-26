@@ -1,0 +1,42 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/adit/Documents/NGL Paper/minipay-hello/contracts/contracts/NGLPaperPayment.sol": {
+      "lastModificationDate": 1777229726815,
+      "contentHash": "05e49fc0a9b0113c6d071d513756f816",
+      "sourceName": "contracts/NGLPaperPayment.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20",
+        "NGLPaperPayment"
+      ]
+    }
+  }
+}
