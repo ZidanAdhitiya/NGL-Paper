@@ -4,7 +4,7 @@
    ───────────────────────────────────────────── */
 import { useState, useEffect } from 'react'
 
-const BACKEND = window.__BACKEND_URL__ || ''
+const BACKEND = import.meta.env.VITE_BACKEND_URL || window.__BACKEND_URL__ || ''
 
 const formatDate = (ts) =>
   new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })

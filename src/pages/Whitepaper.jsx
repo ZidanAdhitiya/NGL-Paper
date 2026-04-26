@@ -6,8 +6,7 @@ import { useState, useRef, useEffect } from 'react'
 import { PDFDocument } from 'pdf-lib'
 import { encodeFunctionData } from 'viem'
 
-// Use the public tunnel URL injected by start.sh, or fall back to localhost for local dev
-const API_BASE = window.__BACKEND_URL__ || 'http://localhost:3001'
+const API_BASE = import.meta.env.VITE_BACKEND_URL || window.__BACKEND_URL__ || 'http://localhost:3001'
 const PRICE_PER_PAGE_USD = 0.01
 
 const CELO_MAINNET = { chainId: 42220, chainIdHex: '0xa4ec', name: 'Celo Mainnet', nativeSymbol: 'CELO', rpcUrl: 'https://forno.celo.org', explorer: 'https://celoscan.io' }

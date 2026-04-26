@@ -3,7 +3,7 @@
    ───────────────────────────────────────────── */
 import { useState, useRef, useEffect } from 'react'
 
-const BACKEND = window.__BACKEND_URL__ || ''
+const BACKEND = import.meta.env.VITE_BACKEND_URL || window.__BACKEND_URL__ || ''
 
 const WELCOME_MESSAGE = {
   role: 'ai',
