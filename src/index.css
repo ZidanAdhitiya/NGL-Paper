@@ -13,11 +13,11 @@
 
 :root {
   /* Backgrounds */
-  --bg:          #070711;
-  --bg-surface:  #0D0D1F;
-  --bg-card:     rgba(255, 255, 255, 0.04);
-  --bg-card-hov: rgba(255, 255, 255, 0.07);
-  --bg-input:    rgba(255, 255, 255, 0.05);
+  --bg:          #090C20;
+  --bg-surface:  #0E1230;
+  --bg-card:     rgba(255, 255, 255, 0.05);
+  --bg-card-hov: rgba(255, 255, 255, 0.09);
+  --bg-input:    rgba(255, 255, 255, 0.06);
 
   /* Borders */
   --border:      rgba(255, 255, 255, 0.08);
@@ -1426,7 +1426,230 @@ body {
   border-radius: var(--r-pill);
 }
 
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════
+   NOTION-STYLE HOME PAGE (nv-*)
+   ═══════════════════════════════════════════════════ */
+
+/* Page wrapper — remove default page-content gaps */
+.nv-page {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+.nv-page .page-content { display: none; } /* hide old content wrapper if any */
+
+/* ── Visual Zone ─────────────────────────────────── */
+.nv-zone {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+.nv-zone--top { height: 200px; }
+.nv-zone--bot { height: 180px; }
+
+/* Full-width SVG path */
+.nv-path-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Path trace animation — draws itself in, then breathes */
+.nv-path-trace {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: path-draw 2.4s cubic-bezier(0.4,0,0.2,1) 0.3s forwards,
+             path-breathe 4s ease-in-out 2.8s infinite alternate;
+}
+.nv-path-trace--delay {
+  animation-delay: 0.8s, 3.3s;
+}
+
+@keyframes path-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes path-breathe {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+
+/* ── Floating Crypto Chips ───────────────────────── */
+.nv-chip {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  animation: chip-float 3.5s ease-in-out infinite alternate;
+  z-index: 2;
+}
+.nv-chip:nth-child(3) { animation-duration: 4.2s; animation-direction: alternate-reverse; }
+.nv-chip:nth-child(4) { animation-duration: 3s;   animation-delay: 0.5s; }
+
+@keyframes chip-float {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-10px); }
+}
+
+/* Chip color variants */
+.nv-chip--gold   { background: linear-gradient(135deg, #B45309, #D97706); color: #fff; }
+.nv-chip--green  { background: linear-gradient(135deg, #059669, #35D07F); color: #fff; }
+.nv-chip--purple { background: linear-gradient(135deg, #6D28D9, #818CF8); color: #fff; }
+.nv-chip--blue   { background: linear-gradient(135deg, #1D4ED8, #3B82F6); color: #fff; }
+.nv-chip--dark   { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--text-sub); }
+
+/* Notification badge on chip */
+.nv-chip-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #070711;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg);
+}
+
+.nv-chip-letter {
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* ── Sparkle ─────────────────────────────────────── */
+.nv-spark {
+  position: absolute;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.25);
+  animation: spark-pulse 3s ease-in-out infinite alternate;
+  z-index: 1;
+  user-select: none;
+}
+.nv-spark:nth-child(even) { animation-duration: 4.5s; animation-direction: alternate-reverse; }
+
+@keyframes spark-pulse {
+  from { opacity: 0.15; transform: scale(0.8); }
+  to   { opacity: 0.5;  transform: scale(1.2); }
+}
+
+/* ── Hero ────────────────────────────────────────── */
+.nv-hero {
+  text-align: center;
+  padding: 0.5rem 1.5rem 0.25rem;
+  z-index: 1;
+}
+
+.nv-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.nv-title-accent {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.nv-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+/* ── CTA Buttons ─────────────────────────────────── */
+.nv-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.25rem 1.5rem 0;
+  z-index: 1;
+}
+
+.nv-btn-primary {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  background: #3B5BDB;
+  color: #fff;
+  border: none;
+  border-radius: var(--r-pill);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t);
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 24px rgba(59,91,219,0.35);
+}
+.nv-btn-primary:hover {
+  background: #4C6EF5;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(59,91,219,0.45);
+}
+.nv-btn-primary:active { transform: translateY(0); }
+
+.nv-btn-secondary {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--r-pill);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t);
+}
+.nv-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.22);
+}
+
+/* ── Footer ──────────────────────────────────────── */
+.nv-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem 2.5rem;
+}
+
+.nv-footer-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  flex-shrink: 0;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+.nv-footer-text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }

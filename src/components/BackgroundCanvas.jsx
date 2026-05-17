@@ -1,27 +1,54 @@
 /* ─────────────────────────────────────────────
-   BackgroundCanvas — Floating Hexagons
-   Slowly drifting hexagons, brand colors,
-   low opacity. Celo brand + blockchain aesthetic.
+   BackgroundCanvas — Animated Price Chart Waves
+   Abstract wavy lines resembling crypto price
+   charts, slowly animated. Clearly visible,
+   clearly "finance/crypto", not cyber.
    Constrained to 480px app shell.
    ───────────────────────────────────────────── */
 import { useEffect, useRef } from 'react'
 
-const COLORS = [
-  { r: 129, g: 140, b: 248 }, // purple
-  { r: 53,  g: 208, b: 127 }, // green (Celo)
-  { r: 252, g: 255, b: 82  }, // gold
-]
-
-function drawHex(ctx, x, y, size, angle) {
-  ctx.beginPath()
-  for (let i = 0; i < 6; i++) {
-    const a  = (i * Math.PI) / 3 + angle
-    const px = x + size * Math.cos(a)
-    const py = y + size * Math.sin(a)
-    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)
-  }
-  ctx.closePath()
+/* Multi-harmonic sine wave for organic movement */
+function waveY(x, yBase, amp, freq, t, speed) {
+  return (
+    yBase
+    + Math.sin(x * freq + t * speed)           * amp
+    + Math.sin(x * freq * 1.7 + t * speed * 0.6) * (amp * 0.4)
+    + Math.sin(x * freq * 0.5 + t * speed * 1.4) * (amp * 0.25)
+  )
 }
+
+const WAVES = [
+  {
+    yRatio:     0.28,   // vertical position as fraction of H
+    amp:        52,
+    freq:       0.009,
+    speed:      0.007,
+    color:      [53,  208, 127],  // green (Celo)
+    lineAlpha:  0.4,
+    fillAlpha:  0.055,
+    lineW:      1.4,
+  },
+  {
+    yRatio:     0.55,
+    amp:        38,
+    freq:       0.011,
+    speed:      0.005,
+    color:      [129, 140, 248],  // purple
+    lineAlpha:  0.28,
+    fillAlpha:  0.04,
+    lineW:      1.1,
+  },
+  {
+    yRatio:     0.77,
+    amp:        26,
+    freq:       0.014,
+    speed:      0.009,
+    color:      [252, 255, 82 ],  // gold
+    lineAlpha:  0.2,
+    fillAlpha:  0.025,
+    lineW:      0.9,
+  },
+]
 
 export default function BackgroundCanvas({ theme }) {
   const canvasRef = useRef(null)
@@ -32,53 +59,56 @@ export default function BackgroundCanvas({ theme }) {
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     let animId
+    let t = 0
 
     const W = Math.min(window.innerWidth, 480)
     const H = window.innerHeight
     canvas.width  = W
     canvas.height = H
 
-    /* ── Generate hexagons ── */
-    const hexagons = Array.from({ length: 22 }, () => {
-      const col = COLORS[Math.floor(Math.random() * COLORS.length)]
-      return {
-        x:      Math.random() * W,
-        y:      Math.random() * H,
-        size:   12 + Math.random() * 30,
-        rot:    Math.random() * Math.PI * 2,
-        drot:   (Math.random() - 0.5) * 0.004,  // very slow spin
-        vy:    -(0.12 + Math.random() * 0.22),   // drift upward
-        vx:     (Math.random() - 0.5) * 0.08,
-        filled: Math.random() < 0.25,            // 25% filled, 75% outline
-        col,
-        alpha:  0.07 + Math.random() * 0.13,     // 7–20% opacity
-      }
-    })
+    const STEP = 3  // px between sample points (smoothness)
 
     const draw = () => {
+      t++
       ctx.clearRect(0, 0, W, H)
 
-      for (const h of hexagons) {
-        h.x   += h.vx
-        h.y   += h.vy
-        h.rot += h.drot
+      for (const wave of WAVES) {
+        const yBase = wave.yRatio * H
+        const [r, g, b] = wave.color
 
-        /* Wrap: if off top → reset to bottom */
-        if (h.y + h.size < 0)   h.y = H + h.size
-        if (h.x < -h.size)      h.x = W + h.size
-        if (h.x > W + h.size)   h.x = -h.size
-
-        const { r, g, b } = h.col
-
-        drawHex(ctx, h.x, h.y, h.size, h.rot)
-
-        if (h.filled) {
-          ctx.fillStyle = `rgba(${r},${g},${b},${(h.alpha * 0.35).toFixed(3)})`
-          ctx.fill()
+        /* ── Build wave path ── */
+        const pts = []
+        for (let x = 0; x <= W; x += STEP) {
+          pts.push({ x, y: waveY(x, yBase, wave.amp, wave.freq, t, wave.speed) })
         }
 
-        ctx.strokeStyle = `rgba(${r},${g},${b},${h.alpha.toFixed(3)})`
-        ctx.lineWidth   = 0.9
+        /* ── Filled area below wave ── */
+        ctx.beginPath()
+        ctx.moveTo(0, H)
+        for (const p of pts) ctx.lineTo(p.x, p.y)
+        ctx.lineTo(W, H)
+        ctx.closePath()
+
+        const fillGrad = ctx.createLinearGradient(0, yBase - wave.amp, 0, H)
+        fillGrad.addColorStop(0, `rgba(${r},${g},${b},${wave.fillAlpha})`)
+        fillGrad.addColorStop(1, `rgba(${r},${g},${b},0)`)
+        ctx.fillStyle = fillGrad
+        ctx.fill()
+
+        /* ── Wave line ── */
+        ctx.beginPath()
+        ctx.moveTo(pts[0].x, pts[0].y)
+        for (let i = 1; i < pts.length - 2; i++) {
+          // Smooth Catmull–Rom-ish via midpoints
+          const mx = (pts[i].x + pts[i + 1].x) / 2
+          const my = (pts[i].y + pts[i + 1].y) / 2
+          ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my)
+        }
+        ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y)
+
+        ctx.strokeStyle = `rgba(${r},${g},${b},${wave.lineAlpha})`
+        ctx.lineWidth   = wave.lineW
+        ctx.lineJoin    = 'round'
         ctx.stroke()
       }
 
