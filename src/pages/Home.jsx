@@ -1,25 +1,71 @@
 /* ─────────────────────────────────────────────
-   Home Page — NGL Paper
+   Home Page — NGL Paper (Redesigned)
+   Editorial dark aesthetic · SVG icons · Typography-driven
    ───────────────────────────────────────────── */
+
+const IconDoc = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="8" y1="13" x2="16" y2="13"/>
+    <line x1="8" y1="17" x2="16" y2="17"/>
+    <line x1="8" y1="9" x2="10" y2="9"/>
+  </svg>
+)
+
+const IconChat = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+)
+
+const IconArrow = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
+  </svg>
+)
+
+const IconWallet = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2"/>
+    <path d="M2 10h20"/>
+    <circle cx="17" cy="15" r="1" fill="currentColor" stroke="none"/>
+  </svg>
+)
+
+const IconSun = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <circle cx="12" cy="12" r="4"/>
+    <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+)
+
+const IconMoon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+)
 
 export default function Home({ address, balance, network, connectWallet, disconnectWallet, setView, shortenAddr, theme, toggleTheme }) {
   return (
     <div className="page">
-      {/* ── Top Bar ── */}
+
+      {/* ── Topbar ── */}
       <div className="topbar">
         <div className="topbar-logo">
-          <div className="logo-badge">📜</div>
+          <div className="h-logo-mark">N</div>
           <span className="logo-name">NGL Paper</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <button
-            onClick={toggleTheme}
-            style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '999px', width: 30, height: 30, cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
+          <button className="h-icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === 'dark' ? <IconSun /> : <IconMoon />}
           </button>
           {address ? (
-            <button className="wallet-chip" onClick={disconnectWallet} title="Disconnect wallet" style={{ cursor: 'pointer' }}>
+            <button className="wallet-chip" onClick={disconnectWallet} title="Disconnect wallet">
               <span className="wallet-dot" />
               {shortenAddr(address)}
             </button>
@@ -35,106 +81,114 @@ export default function Home({ address, balance, network, connectWallet, disconn
       <div className="page-content">
 
         {/* ── Hero ── */}
-        <section className="hero-section fade-up">
-          <p className="hero-eyebrow">⚡ Built on Celo · MiniPay</p>
-          <h1 className="hero-title">
+        <section className="h-hero fade-up">
+          <div className="h-eyebrow">
+            <span className="h-eyebrow-pip" />
+            Built on Celo · MiniPay
+          </div>
+          <h1 className="h-title">
             Blockchain jargon,<br />
-            <span>finally explained.</span>
+            <span className="h-title-accent">finally explained.</span>
           </h1>
-          <p className="hero-sub">
-            NGL Paper turns dense whitepapers and cryptic blockchain documents into clear, structured explanations — so you understand what you're actually reading before you invest or build.
+          <p className="h-sub">
+            NGL Paper turns dense whitepapers into clear, structured breakdowns — so you understand what you're reading before you invest or build.
           </p>
         </section>
 
         {/* ── Wallet state ── */}
         {!address ? (
-          <button
-            onClick={connectWallet}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', width: '100%', padding: '0.9rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '0.85rem', cursor: 'pointer', fontFamily: 'var(--font)', transition: 'all 0.2s', textAlign: 'left' }}
-            className="fade-up delay-1"
-          >
-            <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--gold-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>👛</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '0.87rem', fontWeight: 600, color: 'var(--text)' }}>Connect your wallet to get started</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>MiniPay required · pay $0.01 per page explained</div>
+          <button className="h-wallet-cta fade-up delay-1" onClick={connectWallet} id="btn-connect-wallet">
+            <div className="h-wallet-cta-icon">
+              <IconWallet />
             </div>
-            <span style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>›</span>
+            <div className="h-wallet-cta-body">
+              <span className="h-wallet-cta-label">Connect your wallet to start</span>
+              <span className="h-wallet-cta-sub">MiniPay required · $0.01 per page explained</span>
+            </div>
+            <span className="h-wallet-cta-arrow"><IconArrow /></span>
           </button>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.85rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '0.85rem' }} className="fade-up delay-1">
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--green-dim)', border: '1px solid rgba(53,208,127,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>👛</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--green)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Connected · {network}</div>
-              <div style={{ fontSize: '0.83rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--mono)', marginTop: '0.1rem' }}>{shortenAddr(address)}</div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.3rem' }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Balance</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--gold)' }}>{balance}</div>
+          <div className="h-wallet-card fade-up delay-1">
+            <div className="h-wallet-card-top">
+              <div className="h-wallet-status-row">
+                <span className="wallet-dot" />
+                <span className="h-wallet-net">{network}</span>
               </div>
-              <button onClick={disconnectWallet} style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'none', border: '1px solid var(--border)', borderRadius: '999px', padding: '0.15rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font)' }}>Disconnect</button>
+              <button className="h-wallet-disc-btn" onClick={disconnectWallet}>Disconnect</button>
+            </div>
+            <div className="h-wallet-card-mid">
+              <span className="h-wallet-addr">{shortenAddr(address)}</span>
+              <span className="h-wallet-bal">{balance} <em className="h-wallet-unit">CELO</em></span>
             </div>
           </div>
         )}
 
         {/* ── Features ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div className="h-features fade-up delay-2">
 
-          {/* Explain Paper */}
-          <div className="feature-card gold fade-up delay-2" onClick={() => setView('whitepaper')}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.9rem' }}>
-              <div className="feature-icon-wrap gold">📄</div>
-              <div style={{ flex: 1 }}>
-                <span className="feature-tag gold">$0.01 / page</span>
-                <h2 className="feature-title" style={{ marginTop: '0.4rem' }}>Explain Whitepaper</h2>
-                <p className="feature-desc">
-                  Upload a PDF or paste a URL — our AI reads the entire document and returns a structured breakdown with plain-language summaries, key terms defined with analogies, and a clear core takeaway for every section.
-                </p>
+          {/* 01 — Explain Whitepaper */}
+          <button className="h-feat" id="btn-feat-whitepaper" onClick={() => setView('whitepaper')}>
+            <div className="h-feat-top">
+              <span className="h-feat-num">01</span>
+              <div className="h-feat-icon-wrap h-feat-icon-wrap--gold">
+                <IconDoc />
               </div>
-              <span className="feature-arrow">›</span>
+              <span className="h-feat-badge h-feat-badge--gold">$0.01 / page</span>
+              <span className="h-feat-arrow"><IconArrow /></span>
             </div>
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-              {['PDF upload', 'URL import', 'Overview or Full Analysis', 'Download PDF'].map(t => (
-                <span key={t} style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.18rem 0.55rem', borderRadius: '999px', border: '1px solid var(--border)' }}>{t}</span>
+            <div className="h-feat-body">
+              <p className="h-feat-title">Explain Whitepaper</p>
+              <p className="h-feat-desc">Upload a PDF or paste a URL. Get a structured breakdown — plain summaries, key terms with analogies, and a core takeaway for every section.</p>
+            </div>
+            <div className="h-feat-tags">
+              {['PDF upload', 'URL import', 'Overview / Full Analysis', 'Download PDF'].map(t => (
+                <span key={t} className="h-feat-tag">{t}</span>
               ))}
             </div>
-          </div>
+          </button>
 
-          {/* Ask the Paper */}
-          <div className="feature-card purple fade-up delay-3" onClick={() => setView('askpaper')}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.9rem' }}>
-              <div className="feature-icon-wrap purple">💬</div>
-              <div style={{ flex: 1 }}>
-                <span className="feature-tag purple">Free · AI Chat</span>
-                <h2 className="feature-title" style={{ marginTop: '0.4rem' }}>Ask the Paper</h2>
-                <p className="feature-desc">
-                  Attach any whitepaper and ask questions in plain language — "What are the risks?", "How does the token work?", "Explain the consensus mechanism." Get instant, accurate answers grounded in the actual document.
-                </p>
+          <div className="h-feat-sep" />
+
+          {/* 02 — Ask the Paper */}
+          <button className="h-feat" id="btn-feat-askpaper" onClick={() => setView('askpaper')}>
+            <div className="h-feat-top">
+              <span className="h-feat-num">02</span>
+              <div className="h-feat-icon-wrap h-feat-icon-wrap--purple">
+                <IconChat />
               </div>
-              <span className="feature-arrow">›</span>
+              <span className="h-feat-badge h-feat-badge--purple">Free · AI Chat</span>
+              <span className="h-feat-arrow"><IconArrow /></span>
             </div>
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            <div className="h-feat-body">
+              <p className="h-feat-title">Ask the Paper</p>
+              <p className="h-feat-desc">Attach any whitepaper and ask in plain language — "What are the risks?", "How does the token work?" Instant answers grounded in the actual document.</p>
+            </div>
+            <div className="h-feat-tags">
               {['What are the risks?', 'How does tokenomics work?', 'Explain the consensus'].map(t => (
-                <span key={t} style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.18rem 0.55rem', borderRadius: '999px', border: '1px solid var(--border)' }}>{t}</span>
+                <span key={t} className="h-feat-tag h-feat-tag--purple">{t}</span>
               ))}
             </div>
-          </div>
+          </button>
+
         </div>
 
         {/* ── How it works ── */}
-        <div style={{ paddingTop: '0.25rem' }} className="fade-up delay-4">
-          <p className="section-label" style={{ marginBottom: '1rem' }}>How it works</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        <div className="h-steps fade-up delay-3">
+          <p className="section-label" style={{ marginBottom: '1.1rem' }}>How it works</p>
+          <div className="h-steps-list">
             {[
-              { n: '01', title: 'Upload your document', sub: 'Drop a PDF or paste any URL — whitepaper, research paper, docs page, whatever you need explained.' },
-              { n: '02', title: 'Pay as you go', sub: 'You only pay for what you use. $0.01 USD per page, settled instantly on-chain through MiniPay.' },
-              { n: '03', title: 'Read the explanation', sub: 'Every section is broken down with a plain summary, technical deep-dive, key term definitions, and a core takeaway.' },
+              { n: '01', title: 'Upload your document', sub: 'Drop a PDF or paste any URL — whitepaper, research paper, docs page.' },
+              { n: '02', title: 'Pay as you go', sub: '$0.01 per page, settled instantly on-chain via MiniPay.' },
+              { n: '03', title: 'Read the explanation', sub: 'Plain summary, technical deep-dive, key terms, and a core takeaway per section.' },
             ].map(({ n, title, sub }, i) => (
-              <div key={n} style={{ display: 'flex', gap: '1rem', paddingBottom: i < 2 ? '1rem' : 0, marginBottom: i < 2 ? '1rem' : 0, borderBottom: i < 2 ? '1px solid var(--border)' : 'none' }}>
-                <span style={{ fontFamily: 'var(--mono)', fontSize: '0.68rem', color: 'var(--text-muted)', paddingTop: '0.1rem', flexShrink: 0, minWidth: 20 }}>{n}</span>
-                <div>
-                  <div style={{ fontSize: '0.87rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.2rem' }}>{title}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>{sub}</div>
+              <div key={n} className="h-step">
+                <div className="h-step-left">
+                  <span className="h-step-num">{n}</span>
+                  {i < 2 && <div className="h-step-line" />}
+                </div>
+                <div className="h-step-body">
+                  <p className="h-step-title">{title}</p>
+                  <p className="h-step-sub">{sub}</p>
                 </div>
               </div>
             ))}
@@ -142,9 +196,9 @@ export default function Home({ address, balance, network, connectWallet, disconn
         </div>
 
         {/* ── Built on ── */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.4rem', flexWrap: 'wrap', paddingBottom: '0.5rem' }} className="fade-up delay-5">
-          {['Celo Network', 'MiniPay', 'Vertex AI', 'ODIS'].map(tag => (
-            <span key={tag} style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.2rem 0.6rem', border: '1px solid var(--border)', borderRadius: '999px' }}>{tag}</span>
+        <div className="h-built fade-up delay-4">
+          {['Celo Network', 'MiniPay', 'Vertex AI', 'Gemini 2.5 Flash'].map(tag => (
+            <span key={tag} className="h-built-tag">{tag}</span>
           ))}
         </div>
 

@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Whitepaper from './pages/Whitepaper'
 import AskPaper from './pages/AskPaper'
 import Profile from './pages/Profile'
+import BackgroundCanvas from './components/BackgroundCanvas'
 import './index.css'
 
 /* ─── Wallet helpers ──────────────────────── */
@@ -93,7 +94,11 @@ export default function App() {
 
   return (
     <>
-      <div className="aura" aria-hidden="true" />
+      <BackgroundCanvas theme={theme} />
+      <div className="aura" aria-hidden="true">
+        <div className="aura-blob aura-blob--purple" />
+        <div className="aura-blob aura-blob--green" />
+      </div>
 
       <div className="app-shell">
         {/* ── Pages ── */}
