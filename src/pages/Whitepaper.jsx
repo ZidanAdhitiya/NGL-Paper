@@ -427,15 +427,22 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
 
             {tab === 'pdf' && (
               <>
-                <div
-                  onClick={() => !analyzing && fileRef.current?.click()}
+                <label
+                  htmlFor="pdf-upload-input"
                   style={{
                     border: '1.5px dashed var(--border)', borderRadius: '1rem', padding: '2.5rem 1rem',
                     textAlign: 'center', cursor: analyzing ? 'default' : 'pointer',
-                    background: 'var(--bg-card)', transition: 'border-color 0.2s',
+                    background: 'var(--bg-card)', transition: 'border-color 0.2s', display: 'block',
                   }}
                 >
-                  <input ref={fileRef} type="file" accept=".pdf" onChange={handleFileChange} style={{ display: 'none' }} />
+                  <input
+                    ref={fileRef}
+                    id="pdf-upload-input"
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
                   {analyzing ? (
                     <>
                       <div style={{ width: 32, height: 32, border: '2px solid var(--border)', borderTop: '2px solid var(--purple)', borderRadius: '50%', animation: 'spin 0.9s linear infinite', margin: '0 auto 0.75rem' }} />
@@ -448,7 +455,7 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
                       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Whitepaper, research paper, docs — max 20 MB</p>
                     </>
                   )}
-                </div>
+                </label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {[['Upload your PDF', 'Any whitepaper or research paper'], ['AI reads & analyzes', 'Deep structural understanding'], ['Get a clear explanation', 'Download as formatted PDF']].map(([t, d], i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
