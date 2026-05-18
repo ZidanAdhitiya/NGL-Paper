@@ -459,6 +459,7 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
                     ref={fileRef}
                     id="pdf-upload-input"
                     type="file"
+                    accept="*/*"
                     onChange={handleFileChange}
                     style={{ display: 'none' }}
                   />
@@ -485,6 +486,13 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
                       </div>
                     </div>
                   ))}
+                </div>
+                {/* Android WebView fallback notice */}
+                <div style={{ display: 'flex', gap: '0.6rem', padding: '0.75rem', borderRadius: '0.65rem', background: 'rgba(252,255,82,0.06)', border: '1px solid rgba(252,255,82,0.15)', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>💡</span>
+                  <p style={{ fontSize: '0.73rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
+                    <strong style={{ color: 'var(--text-sub)' }}>File picker showing only images?</strong> Switch to the <strong style={{ color: 'var(--gold)' }}>URL tab</strong> — upload your PDF to Google Drive, set to public, and paste the link.
+                  </p>
                 </div>
               </>
             )}
