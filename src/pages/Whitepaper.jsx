@@ -203,10 +203,30 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
   const handleFileChange = async (e) => {
     const f = e.target.files?.[0]
     if (!f) return
-    if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
+
+    // Step 1: check extension
+    const isPdfByName = f.name.toLowerCase().endsWith('.pdf')
+    // Step 2: check MIME type (may be empty on some Android WebViews)
+    const isPdfByType = f.type === 'application/pdf' || f.type === 'application/x-pdf'
+
+    if (!isPdfByName && !isPdfByType) {
       showToast('Only PDF files are supported', 'error')
       return
     }
+
+    // Step 3: verify PDF magic bytes (%PDF = 0x25 0x50 0x44 0x46)
+    try {
+      const header = await f.slice(0, 5).arrayBuffer()
+      const bytes  = new Uint8Array(header)
+      const magic  = String.fromCharCode(...bytes)
+      if (!magic.startsWith('%PDF')) {
+        showToast('This file does not appear to be a valid PDF', 'error')
+        return
+      }
+    } catch (_) {
+      // If we can't read the header, fall through and let pdf-lib handle it
+    }
+
     if (f.size > 20 * 1024 * 1024) {
       showToast('File too large (max 20 MB)', 'error')
       return
@@ -439,7 +459,6 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
                     ref={fileRef}
                     id="pdf-upload-input"
                     type="file"
-                    accept="application/pdf,.pdf"
                     onChange={handleFileChange}
                     style={{ display: 'none' }}
                   />
