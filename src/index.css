@@ -1122,6 +1122,14 @@ body {
   flex-shrink: 0;
 }
 
+.nv-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
 /* ── Icon Button ────────────────────────────────── */
 .h-icon-btn {
   width: 30px;
