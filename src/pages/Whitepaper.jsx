@@ -21,7 +21,7 @@ const ERC20_ABI = [
   { name: 'approve', type: 'function', inputs: [{ name: 'spender', type: 'address' }, { name: 'amount', type: 'uint256' }], outputs: [{ type: 'bool' }], stateMutability: 'nonpayable' },
 ]
 
-export default function Whitepaper({ address, balance, setView, showToast, setPaperSession, theme, toggleTheme }) {
+export default function Whitepaper({ address, balance, setView, showToast, setPaperSession, theme, toggleTheme, onRepeatableMission }) {
   const [tab, setTab]             = useState('pdf')
   const [file, setFile]           = useState(null)
   const [url, setUrl]             = useState('')
@@ -338,6 +338,8 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
     setResult(finalResult)
     setStep('result')
     showToast('Paper explained! ✓', 'success')
+    // Award points for using the paper feature
+    onRepeatableMission?.('use_paper')
 
     if (address) {
       fetch(`${API_BASE}/api/account/${address}/history`, {

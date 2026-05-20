@@ -3,7 +3,7 @@
    Wallet-based account: history, stats, preferences
    ───────────────────────────────────────────── */
 import { useState, useEffect } from 'react'
-import { MISSIONS, getMissionState } from '../utils/points'
+import { MISSIONS, getMissionState, getMissionCount } from '../utils/points'
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || window.__BACKEND_URL__ || ''
 
@@ -183,7 +183,8 @@ export default function Profile({ address, balance, network, connectWallet, show
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {MISSIONS.map(mission => {
-              const done = missionState.completed.includes(mission.id)
+              const done  = missionState.completed.includes(mission.id)
+              const count = mission.repeatable ? getMissionCount(mission.id) : 0
               const colorMap = {
                 green:  { bg: 'var(--green-dim)',  border: 'rgba(53,208,127,0.25)',  text: 'var(--green)'  },
                 purple: { bg: 'var(--purple-dim)', border: 'rgba(129,140,248,0.25)', text: 'var(--purple)' },
@@ -219,16 +220,43 @@ export default function Profile({ address, balance, network, connectWallet, show
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
                       {mission.description}
                     </div>
+                    {/* Repeatable: show how many times used */}
+                    {mission.repeatable && count > 0 && (
+                      <div style={{ fontSize: '0.68rem', color: c.text, fontWeight: 600, marginTop: '0.25rem' }}>
+                        {count}x used · 1st: +{mission.pointsFirst} pts · each next: +{mission.points} pts
+                      </div>
+                    )}
+                    {mission.repeatable && count === 0 && (
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        1st use: +{mission.pointsFirst} pts · each next: +{mission.points} pts
+                      </div>
+                    )}
                   </div>
 
                   {/* Points badge */}
                   <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: done ? c.text : 'var(--text-muted)' }}>
-                      +{mission.points}
-                    </div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>pts</div>
-                    {done && (
-                      <div style={{ fontSize: '0.65rem', color: c.text, fontWeight: 700, marginTop: '0.1rem' }}>✓ Done</div>
+                    {mission.repeatable ? (
+                      <>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: done ? c.text : 'var(--text-muted)' }}>
+                          +{mission.points}
+                        </div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>pts/use</div>
+                        {count > 0 && (
+                          <div style={{ fontSize: '0.68rem', color: c.text, fontWeight: 700, marginTop: '0.1rem' }}>
+                            {count}x
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: done ? c.text : 'var(--text-muted)' }}>
+                          +{mission.points}
+                        </div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>pts</div>
+                        {done && (
+                          <div style={{ fontSize: '0.65rem', color: c.text, fontWeight: 700, marginTop: '0.1rem' }}>✓ Done</div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

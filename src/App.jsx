@@ -6,7 +6,7 @@ import Whitepaper from './pages/Whitepaper'
 import AskPaper from './pages/AskPaper'
 import Profile from './pages/Profile'
 import BackgroundCanvas from './components/BackgroundCanvas'
-import { completeMission, getTotalPoints } from './utils/points'
+import { completeMission, completeRepeatableMission, getTotalPoints } from './utils/points'
 import './index.css'
 
 /* ─── Wallet helpers ──────────────────────── */
@@ -110,7 +110,19 @@ export default function App() {
     }
   }, []) // eslint-disable-line
 
-  const sharedProps = { address, balance, network, connectWallet, disconnectWallet, showToast, setView, shortenAddr, paperSession, setPaperSession, theme, toggleTheme, onMissionComplete, totalPoints }
+  const onRepeatableMission = useCallback((missionId) => {
+    const { awarded, points, count } = completeRepeatableMission(missionId)
+    if (awarded) {
+      setTotalPoints(prev => prev + points)
+      import('./utils/points').then(({ MISSIONS }) => {
+        const m = MISSIONS.find(x => x.id === missionId)
+        const label = count === 1 ? `🎉 Mission complete! +${points} pts — ${m?.title}` : `+${points} pts — ${m?.title} (#${count})`
+        showToast(label, 'success')
+      })
+    }
+  }, []) // eslint-disable-line
+
+  const sharedProps = { address, balance, network, connectWallet, disconnectWallet, showToast, setView, shortenAddr, paperSession, setPaperSession, theme, toggleTheme, onMissionComplete, onRepeatableMission, totalPoints }
 
   return (
     <>
