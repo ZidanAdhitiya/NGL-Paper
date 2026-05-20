@@ -84,7 +84,7 @@ const BotPath = () => (
 export default function Home({
   address, balance, network,
   connectWallet, disconnectWallet,
-  setView, shortenAddr, theme, toggleTheme
+  setView, shortenAddr, theme, toggleTheme, totalPoints
 }) {
   return (
     <div className="page nv-page">
@@ -96,6 +96,16 @@ export default function Home({
           <span className="logo-name">NGL Paper</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {totalPoints > 0 && (
+            <button
+              className="wallet-chip"
+              onClick={() => setView('profile')}
+              style={{ gap: '0.3rem', background: 'var(--gold-dim)', borderColor: 'rgba(252,255,82,0.3)', color: 'var(--gold)' }}
+            >
+              <span style={{ fontSize: '0.7rem' }}>⭐</span>
+              <span style={{ fontWeight: 800 }}>{totalPoints}</span>
+            </button>
+          )}
           <button className="h-icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
             {theme === 'dark' ? <IconSun /> : <IconMoon />}
           </button>

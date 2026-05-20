@@ -51,7 +51,7 @@ const renderText = (text) => {
   return <span dangerouslySetInnerHTML={{ __html: html }} />
 }
 
-export default function AskPaper({ address, showToast, paperSession, setPaperSession, theme, toggleTheme }) {
+export default function AskPaper({ address, showToast, paperSession, setPaperSession, theme, toggleTheme, onMissionComplete }) {
   const [panel, setPanel]         = useState('chat')  // 'chat' | 'history'
   const [session, setSession]     = useState(null)
   const [messages, setMessages]   = useState([WELCOME_MESSAGE])
@@ -62,6 +62,7 @@ export default function AskPaper({ address, showToast, paperSession, setPaperSes
   const [chatId, setChatId]       = useState(null)   // DB chat session id
   const [chatList, setChatList]   = useState([])
   const [histLoading, setHistLoading] = useState(false)
+  const hasAwardedAsk = useRef(false)
 
   const bottomRef = useRef(null)
   const inputRef  = useRef(null)
@@ -253,6 +254,12 @@ export default function AskPaper({ address, showToast, paperSession, setPaperSes
       if (!res.ok) throw new Error(data.error || 'AI failed')
       setMessages(prev => [...prev, { role: 'ai', text: data.answer }])
       saveMessage('ai', data.answer, newChatId || chatId)
+
+      // Award mission: first time getting an AI response
+      if (!hasAwardedAsk.current) {
+        hasAwardedAsk.current = true
+        onMissionComplete?.('ask_dr_paper')
+      }
     } catch (err) {
       const errMsg = err.message || 'Something went wrong'
       setMessages(prev => [...prev, { role: 'error', text: errMsg }])

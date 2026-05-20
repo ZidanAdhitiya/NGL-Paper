@@ -6,6 +6,7 @@ import Whitepaper from './pages/Whitepaper'
 import AskPaper from './pages/AskPaper'
 import Profile from './pages/Profile'
 import BackgroundCanvas from './components/BackgroundCanvas'
+import { completeMission, getTotalPoints } from './utils/points'
 import './index.css'
 
 /* ─── Wallet helpers ──────────────────────── */
@@ -25,6 +26,7 @@ export default function App() {
   const [toastVisible, setToastVisible] = useState(false)
   const [paperSession, setPaperSession] = useState(null)  // { sessionId, filename }
   const [theme, setTheme] = useState(() => localStorage.getItem('ngl-theme') || 'dark')
+  const [totalPoints, setTotalPoints] = useState(() => getTotalPoints())
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -69,7 +71,14 @@ export default function App() {
       const bal = await pc.getBalance({ address: addr })
       setBalance(parseFloat(formatEther(bal)).toFixed(4))
 
-      showToast('Wallet connected ✓', 'success')
+      // Award mission: wallet_connect
+      const { awarded, points } = completeMission('wallet_connect')
+      if (awarded) {
+        setTotalPoints(prev => prev + points)
+        showToast(`🎉 Mission complete! +${points} pts — First Connection`, 'success')
+      } else {
+        showToast('Wallet connected ✓', 'success')
+      }
     } catch (e) {
       console.error(e)
       showToast('Connect failed', 'error')
@@ -90,7 +99,18 @@ export default function App() {
     setTimeout(() => setToastVisible(false), 2400)
   }
 
-  const sharedProps = { address, balance, network, connectWallet, disconnectWallet, showToast, setView, shortenAddr, paperSession, setPaperSession, theme, toggleTheme }
+  const onMissionComplete = useCallback((missionId) => {
+    const { awarded, points } = completeMission(missionId)
+    if (awarded) {
+      setTotalPoints(prev => prev + points)
+      import('./utils/points').then(({ MISSIONS }) => {
+        const m = MISSIONS.find(x => x.id === missionId)
+        if (m) showToast(`🎉 Mission complete! +${m.points} pts — ${m.title}`, 'success')
+      })
+    }
+  }, []) // eslint-disable-line
+
+  const sharedProps = { address, balance, network, connectWallet, disconnectWallet, showToast, setView, shortenAddr, paperSession, setPaperSession, theme, toggleTheme, onMissionComplete, totalPoints }
 
   return (
     <>

@@ -3,22 +3,29 @@
    Wallet-based account: history, stats, preferences
    ───────────────────────────────────────────── */
 import { useState, useEffect } from 'react'
+import { MISSIONS, getMissionState } from '../utils/points'
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || window.__BACKEND_URL__ || ''
 
 const formatDate = (ts) =>
   new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
-export default function Profile({ address, balance, network, connectWallet, showToast, shortenAddr, theme, toggleTheme }) {
+export default function Profile({ address, balance, network, connectWallet, showToast, shortenAddr, theme, toggleTheme, totalPoints }) {
   const [account,  setAccount]  = useState(null)
   const [loading,  setLoading]  = useState(false)
   const [prefMode, setPrefMode] = useState('simply')
   const [prefLang, setPrefLang] = useState('auto')
   const [saving,   setSaving]   = useState(false)
+  const [missionState, setMissionState] = useState(() => getMissionState())
 
   useEffect(() => {
     if (address) fetchAccount()
   }, [address]) // eslint-disable-line
+
+  // Refresh mission state whenever points change
+  useEffect(() => {
+    setMissionState(getMissionState())
+  }, [totalPoints])
 
   const fetchAccount = async () => {
     setLoading(true)
@@ -159,6 +166,74 @@ export default function Profile({ address, balance, network, connectWallet, show
             <button className="btn btn-secondary" onClick={savePreferences} disabled={saving}>
               {saving ? 'Saving…' : 'Save Preferences'}
             </button>
+          </div>
+        </div>
+
+        <div style={{ height: '1px', background: 'var(--border)' }} />
+
+        {/* ── Missions & Points ── */}
+        <div className="fade-up delay-2">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+            <p className="section-label" style={{ margin: 0 }}>Missions</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0.75rem', borderRadius: 'var(--r-pill)', background: 'var(--gold-dim)', border: '1px solid rgba(251,191,36,0.25)' }}>
+              <span style={{ fontSize: '0.75rem' }}>⭐</span>
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold)' }}>{totalPoints ?? 0} pts</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            {MISSIONS.map(mission => {
+              const done = missionState.completed.includes(mission.id)
+              const colorMap = {
+                green:  { bg: 'var(--green-dim)',  border: 'rgba(53,208,127,0.25)',  text: 'var(--green)'  },
+                purple: { bg: 'var(--purple-dim)', border: 'rgba(129,140,248,0.25)', text: 'var(--purple)' },
+                gold:   { bg: 'var(--gold-dim)',   border: 'rgba(251,191,36,0.25)',  text: 'var(--gold)'   },
+              }
+              const c = colorMap[mission.color] || colorMap.purple
+              return (
+                <div key={mission.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '0.85rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: 'var(--r-lg)',
+                  background: done ? c.bg : 'var(--bg-card)',
+                  border: `1px solid ${done ? c.border : 'var(--border)'}`,
+                  transition: 'all 0.3s',
+                  opacity: done ? 1 : 0.72,
+                }}>
+                  {/* Icon */}
+                  <div style={{
+                    width: 40, height: 40, borderRadius: '0.65rem', flexShrink: 0,
+                    background: done ? c.bg : 'rgba(255,255,255,0.04)',
+                    border: `1.5px solid ${done ? c.border : 'var(--border)'}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.1rem',
+                  }}>
+                    {done ? mission.icon : '🔒'}
+                  </div>
+
+                  {/* Text */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: done ? c.text : 'var(--text)', marginBottom: '0.1rem' }}>
+                      {mission.title}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                      {mission.description}
+                    </div>
+                  </div>
+
+                  {/* Points badge */}
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: done ? c.text : 'var(--text-muted)' }}>
+                      +{mission.points}
+                    </div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>pts</div>
+                    {done && (
+                      <div style={{ fontSize: '0.65rem', color: c.text, fontWeight: 700, marginTop: '0.1rem' }}>✓ Done</div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 
