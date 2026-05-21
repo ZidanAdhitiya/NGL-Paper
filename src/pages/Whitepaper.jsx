@@ -93,6 +93,27 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
     fetchHistory()
   }
 
+  /* ── Load a history item from localStorage cache ── */
+  const loadHistoryResult = (item) => {
+    try {
+      const raw = localStorage.getItem(`ngl-result-${item.id}`)
+      if (raw) {
+        const cached = JSON.parse(raw)
+        setResult(cached.result)
+        setPageCount(cached.pageCount || item.page_count)
+        setMode(cached.mode || item.mode)
+        setPdfBlob(null)      // no PDF download for history
+        setPdfFilename('')
+        setStep('result')
+        setPanel('main')
+      } else {
+        showToast('Result not cached — please re-explain this paper.', 'error')
+      }
+    } catch {
+      showToast('Could not load result.', 'error')
+    }
+  }
+
 
   /* ── Switch to selected payment network ── */
   const switchToNetwork = async (net) => {
@@ -373,7 +394,26 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
           mode,
           language,
         }),
-      }).catch(() => {})
+      })
+        .then(r => r.json())
+        .then(saved => {
+          // Cache the result content in localStorage for later history viewing
+          if (saved?.id) {
+            try {
+              localStorage.setItem(`ngl-result-${saved.id}`, JSON.stringify({
+                result:    finalResult,
+                pageCount: data.pageCount || pageCount,
+                mode,
+              }))
+              // Prune: keep only the 20 most recent cached results
+              const keys = Object.keys(localStorage)
+                .filter(k => k.startsWith('ngl-result-'))
+                .sort()
+              if (keys.length > 20) keys.slice(0, keys.length - 20).forEach(k => localStorage.removeItem(k))
+            } catch (_) {}
+          }
+        })
+        .catch(() => {})
     }
   }
 
@@ -504,52 +544,66 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {historyList.map((item, i) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '0.75rem',
-                      padding: '0.85rem 0',
-                      borderBottom: i < historyList.length - 1 ? '1px solid var(--border)' : 'none',
-                    }}
-                  >
-                    {/* Mode icon */}
-                    <div style={{
-                      width: 36, height: 36, borderRadius: '0.6rem', flexShrink: 0,
-                      background: item.mode === 'full' ? 'var(--purple-dim)' : 'var(--gold-dim)',
-                      border: item.mode === 'full' ? '1px solid rgba(129,140,248,0.2)' : '1px solid rgba(252,255,82,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem',
-                    }}>
-                      {item.mode === 'full' ? '📖' : '⚡'}
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {item.title || 'Untitled'}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                        {item.page_count} pages
-                        {' · '}
-                        {item.mode === 'full' ? 'Full Analysis' : 'Overview'}
-                        {' · '}
-                        {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </div>
-                    </div>
-
-                    {/* Language badge */}
-                    {item.language && item.language !== 'auto' && (
-                      <span style={{
-                        fontSize: '0.65rem', fontWeight: 600, padding: '0.15rem 0.5rem',
-                        borderRadius: '999px', background: 'var(--bg-card)',
-                        border: '1px solid var(--border)', color: 'var(--text-muted)',
-                        flexShrink: 0, textTransform: 'capitalize',
+                {historyList.map((item, i) => {
+                  const isCached = !!localStorage.getItem(`ngl-result-${item.id}`)
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => loadHistoryResult(item)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.75rem',
+                        padding: '0.85rem 0',
+                        borderBottom: i < historyList.length - 1 ? '1px solid var(--border)' : 'none',
+                        background: 'none', border: 'none', cursor: isCached ? 'pointer' : 'default',
+                        textAlign: 'left', fontFamily: 'var(--font)', width: '100%',
+                        opacity: isCached ? 1 : 0.55,
+                        transition: 'opacity 0.2s',
+                      }}
+                    >
+                      {/* Mode icon */}
+                      <div style={{
+                        width: 36, height: 36, borderRadius: '0.6rem', flexShrink: 0,
+                        background: item.mode === 'full' ? 'var(--purple-dim)' : 'var(--gold-dim)',
+                        border: item.mode === 'full' ? '1px solid rgba(129,140,248,0.2)' : '1px solid rgba(252,255,82,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem',
                       }}>
-                        {item.language}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                        {item.mode === 'full' ? '📖' : '⚡'}
+                      </div>
+
+                      {/* Info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.title || 'Untitled'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                          {item.page_count} pages
+                          {' · '}
+                          {item.mode === 'full' ? 'Full Analysis' : 'Overview'}
+                          {' · '}
+                          {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                      </div>
+
+                      {/* Right side: language badge + open arrow */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+                        {item.language && item.language !== 'auto' && (
+                          <span style={{
+                            fontSize: '0.65rem', fontWeight: 600, padding: '0.15rem 0.5rem',
+                            borderRadius: '999px', background: 'var(--bg-card)',
+                            border: '1px solid var(--border)', color: 'var(--text-muted)',
+                            textTransform: 'capitalize',
+                          }}>
+                            {item.language}
+                          </span>
+                        )}
+                        {isCached
+                          ? <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>→</span>
+                          : <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>no cache</span>
+                        }
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
