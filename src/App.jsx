@@ -134,10 +134,18 @@ export default function App() {
 
       <div className="app-shell">
         {/* ── Pages ── */}
-        {view === 'home'       && <Home        {...sharedProps} />}
-        {view === 'whitepaper' && <Whitepaper  {...sharedProps} />}
-        {view === 'askpaper'   && <AskPaper    {...sharedProps} />}
-        {view === 'profile'    && <Profile     {...sharedProps} />}
+        {/* Home & Profile are cheap to remount */}
+        {view === 'home'    && <Home    {...sharedProps} />}
+        {view === 'profile' && <Profile {...sharedProps} />}
+
+        {/* Whitepaper & AskPaper stay mounted to preserve their state.
+            Hidden via display:none when not active. */}
+        <div style={{ display: view === 'whitepaper' ? 'contents' : 'none' }}>
+          <Whitepaper {...sharedProps} />
+        </div>
+        <div style={{ display: view === 'askpaper' ? 'contents' : 'none' }}>
+          <AskPaper {...sharedProps} />
+        </div>
 
         {/* ── Bottom Nav ── */}
         <nav className="bottom-nav">

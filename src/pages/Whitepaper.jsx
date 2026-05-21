@@ -415,8 +415,18 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
 
       {/* ── Top Bar ── */}
       <div className="topbar">
-        <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)', letterSpacing: '-0.01em' }}>
-          Explain Paper
+        {/* Back arrow: confirm → input, result → input */}
+        {(step === 'confirm' || step === 'result') ? (
+          <button
+            onClick={() => step === 'result' ? setStep('input') : setStep('input')}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', cursor: 'pointer', padding: '0.25rem', marginRight: '0.25rem', display: 'flex', alignItems: 'center' }}
+            aria-label="Go back"
+          >
+            ←
+          </button>
+        ) : null}
+        <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)', letterSpacing: '-0.01em', flex: 1 }}>
+          {step === 'result' ? (result?.title ? result.title.slice(0, 28) + (result.title.length > 28 ? '…' : '') : 'Result') : 'Explain Paper'}
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.2rem 0.55rem', borderRadius: '999px', border: '1px solid var(--border)' }}>$0.01/page</span>
@@ -434,6 +444,32 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
         {/* ──── STEP: INPUT ──── */}
         {step === 'input' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+            {/* ── Resume banner: shown if there's already a result ── */}
+            {result && (
+              <button
+                onClick={() => setStep('result')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.75rem',
+                  padding: '0.85rem 1rem', borderRadius: 'var(--r-lg)',
+                  background: 'var(--purple-dim)', border: '1px solid rgba(129,140,248,0.3)',
+                  cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font)', width: '100%',
+                  transition: 'opacity 0.2s',
+                }}
+              >
+                <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>📄</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--purple)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {result.title || 'Last result'}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                    Tap to view your last explanation
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.9rem', color: 'var(--purple)', flexShrink: 0 }}>→</span>
+              </button>
+            )}
+
             {/* Tab row */}
             <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', gap: '1.5rem' }}>
               {[{ id: 'pdf', label: 'PDF Upload' }, { id: 'url', label: 'URL / Link' }].map(t => (
@@ -739,7 +775,10 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
                   Download PDF
                 </button>
               )}
-              <button className="btn btn-ghost" style={{ width: '100%' }} onClick={handleReset}>
+              <button className="btn btn-ghost" style={{ width: '100%' }} onClick={() => setStep('input')}>
+                ← Back to upload
+              </button>
+              <button className="btn btn-ghost" style={{ width: '100%', fontSize: '0.78rem', opacity: 0.65 }} onClick={handleReset}>
                 Explain another paper
               </button>
             </div>
