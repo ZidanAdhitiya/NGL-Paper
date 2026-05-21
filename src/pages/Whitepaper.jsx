@@ -45,6 +45,10 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
   const [payToken, setPayToken]           = useState('cUSD')   // 'cUSD' | 'CELO'
   const [contractByChain, setContractByChain] = useState({})
   const [cUSDByChain, setCUSDByChain]     = useState({})
+  // History panel
+  const [panel, setPanel]           = useState('main')   // 'main' | 'history'
+  const [historyList, setHistoryList] = useState([])
+  const [histLoading, setHistLoading] = useState(false)
 
   const fileRef = useRef(null)
 
@@ -71,6 +75,24 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
       .then(d => setPrices({ celo: d.celo, eth: d.eth }))
       .catch(() => {})
   }, [])
+
+  /* ── Fetch explain history ── */
+  const fetchHistory = async () => {
+    if (!address) return
+    setHistLoading(true)
+    try {
+      const res  = await fetch(`${API_BASE}/api/account/${address}`)
+      const data = await res.json()
+      if (res.ok) setHistoryList(data.history || [])
+    } catch { /* silent */ }
+    finally { setHistLoading(false) }
+  }
+
+  const openHistory = () => {
+    setPanel('history')
+    fetchHistory()
+  }
+
 
   /* ── Switch to selected payment network ── */
   const switchToNetwork = async (net) => {
@@ -416,20 +438,38 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
       {/* ── Top Bar ── */}
       <div className="topbar">
         {/* Back arrow: confirm → input, result → input */}
-        {(step === 'confirm' || step === 'result') ? (
+        {panel === 'main' && (step === 'confirm' || step === 'result') ? (
           <button
-            onClick={() => step === 'result' ? setStep('input') : setStep('input')}
+            onClick={() => setStep('input')}
             style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', cursor: 'pointer', padding: '0.25rem', marginRight: '0.25rem', display: 'flex', alignItems: 'center' }}
             aria-label="Go back"
           >
             ←
           </button>
+        ) : panel === 'history' ? (
+          <button
+            onClick={() => setPanel('main')}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', cursor: 'pointer', padding: '0.25rem', marginRight: '0.25rem', display: 'flex', alignItems: 'center' }}
+            aria-label="Back"
+          >
+            ←
+          </button>
         ) : null}
         <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)', letterSpacing: '-0.01em', flex: 1 }}>
-          {step === 'result' ? (result?.title ? result.title.slice(0, 28) + (result.title.length > 28 ? '…' : '') : 'Result') : 'Explain Paper'}
+          {panel === 'history' ? 'History' : step === 'result' ? (result?.title ? result.title.slice(0, 28) + (result.title.length > 28 ? '…' : '') : 'Result') : 'Explain Paper'}
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.2rem 0.55rem', borderRadius: '999px', border: '1px solid var(--border)' }}>$0.01/page</span>
+          {panel === 'main' && (
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.2rem 0.55rem', borderRadius: '999px', border: '1px solid var(--border)' }}>$0.01/page</span>
+          )}
+          {/* History toggle button */}
+          <button
+            onClick={() => panel === 'history' ? setPanel('main') : openHistory()}
+            title={panel === 'history' ? 'Back' : 'History'}
+            style={{ width: 30, height: 30, borderRadius: '50%', background: panel === 'history' ? 'var(--purple-dim)' : 'none', border: `1px solid ${panel === 'history' ? 'rgba(129,140,248,0.4)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s' }}
+          >
+            🕐
+          </button>
           <button
             onClick={toggleTheme}
             style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '999px', width: 30, height: 30, cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
@@ -440,6 +480,84 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
       </div>
 
       <div className="page-content">
+
+        {/* ══════════════════════════════════════
+            HISTORY PANEL
+        ══════════════════════════════════════ */}
+        {panel === 'history' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {!address ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>👛</div>
+                <div style={{ fontSize: '0.87rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.4rem' }}>Wallet not connected</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>Connect your wallet to view your explain history.</div>
+              </div>
+            ) : histLoading ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                <div style={{ width: 32, height: 32, border: '2px solid var(--border)', borderTop: '2px solid var(--purple)', borderRadius: '50%', animation: 'spin 0.9s linear infinite', margin: '0 auto' }} />
+              </div>
+            ) : historyList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📭</div>
+                <div style={{ fontSize: '0.87rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.4rem' }}>No explains yet</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>Explained papers will appear here.</div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {historyList.map((item, i) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      padding: '0.85rem 0',
+                      borderBottom: i < historyList.length - 1 ? '1px solid var(--border)' : 'none',
+                    }}
+                  >
+                    {/* Mode icon */}
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '0.6rem', flexShrink: 0,
+                      background: item.mode === 'full' ? 'var(--purple-dim)' : 'var(--gold-dim)',
+                      border: item.mode === 'full' ? '1px solid rgba(129,140,248,0.2)' : '1px solid rgba(252,255,82,0.2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem',
+                    }}>
+                      {item.mode === 'full' ? '📖' : '⚡'}
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.title || 'Untitled'}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                        {item.page_count} pages
+                        {' · '}
+                        {item.mode === 'full' ? 'Full Analysis' : 'Overview'}
+                        {' · '}
+                        {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </div>
+                    </div>
+
+                    {/* Language badge */}
+                    {item.language && item.language !== 'auto' && (
+                      <span style={{
+                        fontSize: '0.65rem', fontWeight: 600, padding: '0.15rem 0.5rem',
+                        borderRadius: '999px', background: 'var(--bg-card)',
+                        border: '1px solid var(--border)', color: 'var(--text-muted)',
+                        flexShrink: 0, textTransform: 'capitalize',
+                      }}>
+                        {item.language}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ MAIN PANEL ══ */}
+        {panel === 'main' && (
+          <>
 
         {/* ──── STEP: INPUT ──── */}
         {step === 'input' && (
@@ -784,7 +902,10 @@ export default function Whitepaper({ address, balance, setView, showToast, setPa
             </div>
 
           </div>
-        )}
+
+        )}{/* end RESULT step */}
+          </>
+        )}{/* end panel==='main' */}
 
       </div>
     </div>
